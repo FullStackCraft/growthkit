@@ -1,0 +1,77 @@
+{
+  "name": "@fullstackcraftllc/growthkit",
+  "version": "0.0.2",
+  "description": "React hooks and TypeScript library for growth instrumentation.",
+  "license": "MIT",
+  "author": {
+    "name": "Full Stack Craft LLC",
+    "email": "hi@fullstackcraft.com",
+    "url": "https://fullstackcraft.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FullStackCraft/growthkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/FullStackCraft/growthkit/issues"
+  },
+  "homepage": "https://github.com/FullStackCraft/growthkit#readme",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CONTRIBUTING.md",
+    "LICENSE",
+    "sql"
+  ],
+  "sideEffects": false,
+  "keywords": [
+    "react",
+    "hooks",
+    "attribution",
+    "marketing",
+    "utm",
+    "referrer",
+    "growth"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "npm run clean && rollup -c",
+    "type-check": "tsc --noEmit",
+    "test": "jest",
+    "verify:dist-version": "node ./scripts/verify-dist-version.cjs",
+    "prepublishOnly": "npm run type-check && npm test && npm run build && npm run verify:dist-version"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@testing-library/react": "^16.3.0",
+    "@types/jest": "^29.5.14",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "rollup": "^4.52.4",
+    "rollup-plugin-dts": "^6.2.3",
+    "ts-jest": "^29.4.5",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
+  }
+}
