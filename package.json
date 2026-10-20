@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/growthkit",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "React hooks and TypeScript library for growth instrumentation.",
   "license": "MIT",
   "author": {
