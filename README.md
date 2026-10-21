@@ -77,19 +77,19 @@ Use [sql/growthkit_referral_events.sql](./sql/growthkit_referral_events.sql).
 - Dedupe is intentionally backed by `sessionStorage`.
 - If `enabled` is `false`, tracking is skipped.
 
-## Contact-form spam filtering (0.0.4)
+## Contact-form spam filtering (0.0.5)
 
 `analyzeContactMessage(message)` combines the existing English-like gibberish
 guard with deterministic rules for unsolicited sales-page, traffic-generation,
-and SEO-service pitches. It catches the two observed marketing messages in
-[FUL-389](https://linear.app/full-stack-craft/issue/FUL-389).
+SEO-service, and agency/marketing outreach pitches. It catches the observed
+marketing messages in [FUL-389](https://linear.app/full-stack-craft/issue/FUL-389).
 
 ```ts
 import { analyzeContactMessage, isSpamContactMessage } from '@fullstackcraftllc/growthkit';
 
 const result = analyzeContactMessage(message);
 // result: { isSpam, reasons, englishLike }
-// reasons: not_english_like | sales_page_pitch | traffic_generation_pitch | seo_service_pitch
+// reasons: not_english_like | sales_page_pitch | traffic_generation_pitch | seo_service_pitch | agency_marketing_pitch
 
 if (isSpamContactMessage(message)) {
   // Skip the email/Slack workflow or send to your review queue.
@@ -124,8 +124,8 @@ limiting, and CAPTCHA are outside this filter's scope.
 
 ### Release and colleague handoff
 
-The source version is `0.0.4`. To integrate, install
-`@fullstackcraftllc/growthkit@0.0.4` after that version is published to npm, then
+The source version is `0.0.5`. To integrate, install
+`@fullstackcraftllc/growthkit@0.0.5` after that version is published to npm, then
 add the server check above to each SaaS contact handler. GitHub source availability
 and npm publication are separate steps. Go handlers need an equivalent Go check
 or a JavaScript handler capable of using this package; a client-only import does

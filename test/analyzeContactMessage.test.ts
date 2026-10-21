@@ -42,6 +42,21 @@ describe('contact message spam filtering', () => {
   });
 
   it.each([
+    'we help SaaS tools get reach',
+    'we help SaaS tools get reach. Can I show you?',
+    'We help businesses with tiktok vids.',
+    'We help businesses with marketing.',
+    'We help indie founders build a viral tiktok channel from with real niche followers. We take full creative control, we handle the strategy, content creation, and compliance, so you just have to spend about 1 minute a day uploading the videos we send you after you personally approved it. The service will be free for 7 days and I will be creating videos for you. After 7 days, the cost will only be $30/monthly and no additional costs. Please do let me know if you are still interested to learn more :)',
+    'Our team specializes in marketing. We help startups grow on TikTok.',
+    'We specialize in tiktok videos for indie hackers.',
+  ])('rejects agency and marketing outreach: %s', (message) => {
+    const result = analyzeContactMessage(message);
+    expect(result.isSpam).toBe(true);
+    expect(result.reasons).toContain('agency_marketing_pitch');
+    expect(isSpamContactMessage(message)).toBe(true);
+  });
+
+  it.each([
     'Hi, can you help me with my subscription?',
     'I was charged twice. Can you refund the duplicate payment?',
     'I cannot log in to The Wheel Screener. Can you help reset my account?',
@@ -59,6 +74,11 @@ describe('contact message spam filtering', () => {
     'I would like a demo of your API before subscribing.',
     'Could you show me how it works? I need help with the dashboard.',
     'I am interested in job opportunities. Do you have any open roles?',
+    'Is The Wheel Screener a broker?',
+    'The api is not working',
+    'How can I generate an api',
+    'I purchased starter plan but it still shows free',
+    'want to upgade from starter to premium',
   ])('preserves legitimate contact: %s', (message) => {
     expect(analyzeContactMessage(message)).toMatchObject({ isSpam: false, reasons: [] });
     expect(isSpamContactMessage(message)).toBe(false);
