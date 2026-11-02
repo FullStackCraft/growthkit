@@ -1,4 +1,4 @@
-# GrowthKit 0.0.6 integration examples
+# GrowthKit integration examples
 
 These examples are application code, not a hosted collector. Copy and adapt them;
 they import the public `@fullstackcraftllc/growthkit` API. Clerk, Stripe and Supabase
@@ -181,3 +181,6 @@ set growthkit.end_at = '2026-12-01T00:00:00Z';
 
 Historical anonymous traffic cannot be reliably linked retroactively. Reports become
 useful after the app records identity, signup, activation and authoritative payment events.
+
+For reusable guest checkout, shared customer mappings and atomic webhook receipts, see
+[commerce.md](./commerce.md) and the optional [commerce SQL](../sql/0.0.7_commerce.sql).

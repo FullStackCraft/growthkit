@@ -53,6 +53,26 @@ Clerk, Supabase, Stripe, consent/identity limitations, retries and
 [first/last-touch, funnel and recurring-revenue SQL](./sql/reports/).
 All SQL and examples are included in the npm package. GrowthKit adds no provider SDK dependencies.
 
+## Shared checkout and billing SQL (0.0.7)
+
+The optional [commerce extension](./sql/0.0.7_commerce.sql) supports multiple products
+in one database. It adds three tables: `growthkit_checkout_attempts`,
+`growthkit_webhook_receipts`, and `growthkit_pending_payments`. It extends the existing
+`growthkit_stripe_customers` with nullable guest visitor/session IDs and permits a
+missing account until verified signup. Existing account mappings are preserved.
+All seven tables use `product_name` in keys/lookups; no per-product tables are needed.
+
+Execution order (explicit, never automatic):
+
+1. Optional legacy referrals: [sql/growthkit_referral_events.sql](./sql/growthkit_referral_events.sql).
+2. Events/identity base: [sql/0.0.6_events.sql](./sql/0.0.6_events.sql).
+3. Optional checkout/billing: [sql/0.0.7_commerce.sql](./sql/0.0.7_commerce.sql).
+
+Upgrading an existing 0.0.6 database for commerce requires only step 3. This SQL is
+compatible with the 0.0.6 client runtime and can be rerun. Run as database owner.
+Use the same shared schema for every product; see the [commerce integration guide](./examples/commerce.md)
+for RPCs and trusted backend responsibilities. No provider SDK dependencies are added.
+
 ## API
 
 ```ts

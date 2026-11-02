@@ -9,7 +9,7 @@ const cwd = mkdtempSync(join(tmpdir(), 'growthkit-consumer-'));
 writeFileSync(join(cwd, 'package.json'), JSON.stringify({ private: true, name: 'growthkit-smoke', version: '1.0.0' }));
 execFileSync('npm', ['install', '--ignore-scripts', '--no-audit', '--no-fund', spec, 'react@19.2.2'], { cwd, stdio: 'inherit' });
 const packageDir = join(cwd, 'node_modules/@fullstackcraftllc/growthkit');
-for (const file of ['README.md', 'CHANGELOG.md', 'sql/0.0.6_events.sql', 'examples/README.md']) {
+for (const file of ['README.md', 'CHANGELOG.md', 'sql/0.0.6_events.sql', 'sql/0.0.7_commerce.sql', 'examples/commerce.md', 'examples/README.md']) {
   if (!existsSync(join(packageDir, file))) throw new Error(`Missing packed artifact: ${file}`);
 }
 const imports = `
