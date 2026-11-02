@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/growthkit",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "React hooks and TypeScript library for growth instrumentation.",
   "license": "MIT",
   "author": {
@@ -31,7 +31,9 @@
     "README.md",
     "CONTRIBUTING.md",
     "LICENSE",
-    "sql"
+    "sql",
+    "examples",
+    "CHANGELOG.md"
   ],
   "sideEffects": false,
   "keywords": [
@@ -52,7 +54,8 @@
     "type-check": "tsc --noEmit",
     "test": "jest",
     "verify:dist-version": "node ./scripts/verify-dist-version.cjs",
-    "prepublishOnly": "npm run type-check && npm test && npm run build && npm run verify:dist-version"
+    "prepublishOnly": "npm run type-check && npm test && npm run build && npm run verify:dist-version",
+    "test:sql": "bash scripts/test-sql.sh"
   },
   "peerDependencies": {
     "react": ">=18"

@@ -1,5 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
+  moduleNameMapper: { '^@fullstackcraftllc/growthkit$': '<rootDir>/src/index.ts' },
   testEnvironment: 'jsdom',
   roots: ['<rootDir>/test'],
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],

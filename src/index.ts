@@ -15,3 +15,6 @@ export type {
   UseReferralUrlOptions,
   UseReferralUrlResult,
 } from './types';
+export { createGrowthKit, GrowthKitTransportError } from './createGrowthKit';
+export { validateUserEvent } from './utils/validateUserEvent';
+export type { IUserEvent, AttributionTouch, GrowthKitEvent, GrowthKitOptions, GrowthKit, DeliveryContext } from './types/GrowthKit';

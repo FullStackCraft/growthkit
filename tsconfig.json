@@ -2,7 +2,10 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "moduleResolution": "Node",
     "strict": true,
     "esModuleInterop": true,
@@ -10,8 +13,22 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
-    "types": ["jest", "node"],
-    "noEmit": true
+    "types": [
+      "jest",
+      "node"
+    ],
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fullstackcraftllc/growthkit": [
+        "src/index.ts"
+      ]
+    }
   },
-  "include": ["src", "test", "rollup.config.ts"]
+  "include": [
+    "src",
+    "test",
+    "rollup.config.ts",
+    "examples"
+  ]
 }

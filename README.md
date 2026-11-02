@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@fullstackcraftllc/growthkit)](https://www.npmjs.com/package/@fullstackcraftllc/growthkit)
 
-React hooks and TypeScript library for growth instrumentation. Currently focused on referral URL tracking, but may expand in the future.
+React hooks and TypeScript library for growth instrumentation. Includes referral tracking, typed product events, anonymous identity, verified account linking, attribution, and contact-form spam filtering.
 
 This is 100% open source with MIT license, enjoy!
 
@@ -11,6 +11,47 @@ This is 100% open source with MIT license, enjoy!
 ```bash
 npm install @fullstackcraftllc/growthkit
 ```
+
+## Events, identity and attribution (0.0.6)
+
+```ts
+import { createGrowthKit } from '@fullstackcraftllc/growthkit';
+
+const growthkit = createGrowthKit({
+  productName: 'example.com',
+  onEvent: async (event, { signal }) => {
+    // POST to your application collector; validate HTTP status and forward signal.
+    await applicationTransport.track(event, signal);
+  },
+  onIdentify: async ({ visitorId }, { signal }) => {
+    // Your server verifies authentication and returns { userId }.
+    return applicationTransport.identify(visitorId, signal);
+  },
+});
+
+await growthkit.track({ name: 'analysis_completed', properties: { symbol: 'SPY' } });
+await growthkit.identify(); // after authenticated signup/login; no user ID argument
+// On logout or account switching:
+growthkit.reset();
+```
+
+`IUserEvent` requires `name` and accepts JSON `properties`. GrowthKit attaches anonymous
+visitor/session IDs, occurrence time, sanitized page and attribution snapshots. Browser
+storage is product-scoped; blocked storage falls back to memory. First touch is preserved,
+and direct returns do not overwrite last non-direct touch. Tracking is explicit; call
+`track({ name: 'page_viewed' })` at session entry to measure unactivated visitors too.
+
+**Setup SQL:** [sql/0.0.6_events.sql](./sql/0.0.6_events.sql).
+Fresh installs run this file; if using the legacy referral hook too, run
+[sql/growthkit_referral_events.sql](./sql/growthkit_referral_events.sql) first.
+Existing 0.0.5 installations keep their referral table and run only the new 0.0.6 file.
+No migration runs automatically. New identity/event tables require trusted server ingestion;
+never expose a database secret in browser code. Existing hook and spam-filter APIs are unchanged.
+
+See [integration examples](./examples/README.md) for working HTTP transport, ingestion,
+Clerk, Supabase, Stripe, consent/identity limitations, retries and
+[first/last-touch, funnel and recurring-revenue SQL](./sql/reports/).
+All SQL and examples are included in the npm package. GrowthKit adds no provider SDK dependencies.
 
 ## API
 
@@ -67,7 +108,7 @@ function MarketingLayout() {
 }
 ```
 
-## Recommended schema
+## Legacy referral schema
 
 Use [sql/growthkit_referral_events.sql](./sql/growthkit_referral_events.sql).
 
