@@ -23,6 +23,15 @@ SQL is a reusable reference schema, not an automatic migration runner. Test both
 installation and upgrade without deleting historical referral rows. Examples are type-checked
 with the package; keep provider SDKs out of runtime dependencies.
 
+## Test ownership
+
+Keep tests of GrowthKit APIs and shared behavior in this package, including spam
+message corpora and custom analyzer options. Reuse existing cases when importing
+regressions from consuming websites instead of maintaining duplicate corpora there.
+Website tests should cover their own wiring, submission behavior, payloads, and
+product-specific analytics. Separate implementations, such as a site's Go guard,
+need their own tests; TypeScript coverage does not replace them.
+
 ## Release
 
 1. Update `package.json`, lockfile, README and CHANGELOG together (target: 0.0.7).
