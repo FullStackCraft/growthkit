@@ -2,6 +2,9 @@ export { analyzeContactMessage, isSpamContactMessage } from './analyzeContactMes
 export { analyzeEnglishLikeText, isEnglishLikeText } from './analyzeEnglishLikeText';
 export { useEnglishLikeTextGuard } from './useEnglishLikeTextGuard';
 export { useReferralUrl } from './useReferralUrl';
+export { appendCouponCodeToStripeLink } from './appendCouponCodeToStripeLink';
+export { getDiscountedAmount } from './couponPresentation';
+export type { ICouponCodeConfig } from './types/CouponCodeConfig';
 export type {
   ContactMessageAnalysis,
   ContactMessageOptions,

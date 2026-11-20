@@ -1,6 +1,6 @@
 {
   "name": "@fullstackcraftllc/growthkit",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "React hooks and TypeScript library for growth instrumentation.",
   "license": "MIT",
   "author": {
@@ -24,6 +24,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./coupons": {
+      "types": "./dist/coupons.d.ts",
+      "import": "./dist/coupons.mjs",
+      "require": "./dist/coupons.cjs"
     }
   },
   "files": [
@@ -32,6 +37,8 @@
     "CONTRIBUTING.md",
     "LICENSE",
     "sql",
+    "supabase/config.toml",
+    "supabase/functions/coupons-for-date-range/index.ts",
     "examples",
     "CHANGELOG.md"
   ],

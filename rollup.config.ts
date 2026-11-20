@@ -8,41 +8,37 @@ import type { RollupOptions } from 'rollup';
 const pkgPath = resolve(process.cwd(), 'package.json');
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf8')) as { version: string };
 
-const jsConfig: RollupOptions = {
-  input: 'src/index.ts',
-  output: [
-    {
-      file: 'dist/index.mjs',
-      format: 'esm',
-      sourcemap: true
-    },
-    {
-      file: 'dist/index.cjs',
-      format: 'cjs',
-      sourcemap: true,
-      exports: 'named'
-    }
-  ],
-  external: ['react'],
-  plugins: [
-    replace({
-      preventAssignment: true,
-      values: {
-        __GROWTHKIT_PKG_VERSION__: JSON.stringify(pkg.version)
-      }
-    }),
-    typescript({
-      tsconfig: './tsconfig.json',
-      declaration: false
-    })
-  ]
-};
+const external = ['react', 'react/jsx-runtime'];
 
-const dtsConfig: RollupOptions = {
-  input: 'src/index.ts',
-  output: [{ file: 'dist/index.d.ts', format: 'es' }],
-  external: ['react'],
-  plugins: [dts()]
-};
+function jsConfig(entry: 'index' | 'coupons'): RollupOptions {
+  const banner = entry === 'coupons' ? "'use client';" : undefined;
+  return {
+    input: `src/${entry}.ts`,
+    output: [
+      { file: `dist/${entry}.mjs`, format: 'esm', banner, sourcemap: true },
+      { file: `dist/${entry}.cjs`, format: 'cjs', banner, sourcemap: true, exports: 'named' }
+    ],
+    external,
+    plugins: [
+      replace({
+        preventAssignment: true,
+        values: { __GROWTHKIT_PKG_VERSION__: JSON.stringify(pkg.version) }
+      }),
+      typescript({
+        tsconfig: './tsconfig.json',
+        declaration: false
+      })
+    ]
+  };
+}
 
-export default [jsConfig, dtsConfig];
+function dtsConfig(entry: 'index' | 'coupons'): RollupOptions {
+  return {
+    input: `src/${entry}.ts`,
+    output: [{ file: `dist/${entry}.d.ts`, format: 'es' }],
+    external,
+    plugins: [dts()]
+  };
+}
+
+export default [jsConfig('index'), jsConfig('coupons'), dtsConfig('index'), dtsConfig('coupons')];
