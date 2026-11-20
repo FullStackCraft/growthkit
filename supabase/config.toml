@@ -1,0 +1,4 @@
+project_id = "growthkit"
+
+[functions.coupons-for-date-range]
+verify_jwt = false
