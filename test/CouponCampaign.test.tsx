@@ -175,3 +175,79 @@ test.each([
 ])('rounds %i minor units at %f percent off to %i', (amount, percent, expected) => {
   expect(getDiscountedAmount(amount, percent)).toBe(expected);
 });
+
+test('suppresses CouponBanner when enabled is false without dismissing or clearing useCouponCode', async () => {
+  const now = new Date('2026-11-27T10:00:00Z');
+  const end = new Date(now.getTime() + 60_000);
+  globalThis.fetch = jest.fn().mockResolvedValue(couponResponse(now, now, end));
+
+  const { rerender } = render(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons">
+      <Checkout />
+      <CouponBanner productName={productName} enabled={false} />
+    </CouponCampaignProvider>,
+  );
+  await act(async () => {});
+
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('link', { name: 'Buy now' }).getAttribute('href')).toContain('prefilled_promo_code=FRIDAY50');
+  expect(window.sessionStorage.getItem(`growthkit:coupon:${productName}:test-campaign`)).toBeNull();
+
+  rerender(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons">
+      <Checkout />
+      <CouponBanner productName={productName} enabled />
+    </CouponCampaignProvider>,
+  );
+  expect(screen.getByRole('dialog', { name: 'Black Friday' })).toBeTruthy();
+
+  rerender(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons">
+      <Checkout />
+      <CouponBanner productName={productName} enabled={false} />
+    </CouponCampaignProvider>,
+  );
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(window.sessionStorage.getItem(`growthkit:coupon:${productName}:test-campaign`)).toBeNull();
+});
+
+test('skips fetching and clears campaign context when CouponCampaignProvider enabled is false', async () => {
+  const now = new Date('2026-11-27T10:00:00Z');
+  const end = new Date(now.getTime() + 60_000);
+  const fetchMock = jest.fn().mockResolvedValue(couponResponse(now, now, end));
+  globalThis.fetch = fetchMock;
+
+  const { rerender } = render(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons" enabled={false}>
+      <Checkout />
+      <CouponBanner productName={productName} />
+    </CouponCampaignProvider>,
+  );
+  await act(async () => {});
+
+  expect(fetchMock).not.toHaveBeenCalled();
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('link', { name: 'Buy now' }).getAttribute('href')).toBe(paymentLink);
+
+  rerender(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons" enabled>
+      <Checkout />
+      <CouponBanner productName={productName} />
+    </CouponCampaignProvider>,
+  );
+  await act(async () => {});
+
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('dialog', { name: 'Black Friday' })).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Buy now' }).getAttribute('href')).toContain('prefilled_promo_code=FRIDAY50');
+
+  rerender(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons" enabled={false}>
+      <Checkout />
+      <CouponBanner productName={productName} />
+    </CouponCampaignProvider>,
+  );
+
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('link', { name: 'Buy now' }).getAttribute('href')).toBe(paymentLink);
+});

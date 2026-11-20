@@ -6,6 +6,7 @@ import type { ICouponCodeConfig } from './types/CouponCodeConfig';
 export interface CouponCampaignProviderProps {
   productName: string;
   endpoint?: string;
+  enabled?: boolean;
   children: ReactNode;
 }
 
@@ -40,13 +41,16 @@ function parseCoupon(value: unknown, productName: string): ICouponCodeConfig | n
   return { id, productName, couponName, description, couponCode, discountPercent, couponStart: start, couponEnd: end };
 }
 
-export function CouponCampaignProvider({ productName, endpoint, children }: CouponCampaignProviderProps) {
+export function CouponCampaignProvider({ productName, endpoint, enabled = true, children }: CouponCampaignProviderProps) {
   const normalizedProduct = productName.trim().toLowerCase();
   const source = JSON.stringify([endpoint, normalizedProduct]);
   const [snapshot, setSnapshot] = useState<CampaignSnapshot | null>(null);
 
   useEffect(() => {
-    if (!endpoint || !normalizedProduct) return;
+    if (!enabled || !endpoint || !normalizedProduct) {
+      setSnapshot(null);
+      return;
+    }
     const lookupEndpoint = endpoint;
     let request: AbortController | undefined;
     let expiryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -111,9 +115,9 @@ export function CouponCampaignProvider({ productName, endpoint, children }: Coup
       clearExpiry();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [endpoint, normalizedProduct, source]);
+  }, [enabled, endpoint, normalizedProduct, source]);
 
-  const campaign = snapshot?.source === source ? snapshot : null;
+  const campaign = enabled && snapshot?.source === source ? snapshot : null;
   return <CouponContext.Provider value={campaign}>{children}</CouponContext.Provider>;
 }
 

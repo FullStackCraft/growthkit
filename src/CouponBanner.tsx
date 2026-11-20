@@ -18,6 +18,7 @@ export interface CouponBannerOffer {
 
 export interface CouponBannerProps {
   productName: string;
+  enabled?: boolean;
   offer?: CouponBannerOffer;
   plansHref?: string;
   discountScope?: string;
@@ -27,9 +28,9 @@ export interface CouponBannerProps {
   image?: { src: string; alt?: string };
 }
 
-export function CouponBanner(props: CouponBannerProps) {
+export function CouponBanner({ enabled = true, ...props }: CouponBannerProps) {
   const campaign = useCouponCampaign(props.productName);
-  if (!campaign) return null;
+  if (!enabled || !campaign) return null;
   const { coupon, expiresAt } = campaign;
   const dismissalKey = `growthkit:coupon:${coupon.productName}:${coupon.id}`;
   return <CouponDialog key={dismissalKey} {...props} coupon={coupon} expiresAt={expiresAt} dismissalKey={dismissalKey} />;
