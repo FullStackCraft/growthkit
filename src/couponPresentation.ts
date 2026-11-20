@@ -16,6 +16,17 @@ export function getCouponArtwork(couponName: string): CouponArtwork {
   return seasons.find(([keyword]) => name.includes(keyword))?.[1] ?? 'default';
 }
 
+export function getCouponOfferUrl(value: string): string | null {
+  if (!/^https:\/\/[^/?#]/i.test(value) || /[\s\\]/.test(value)) return null;
+
+  try {
+    const url = new URL(value);
+    return url.hostname && !url.username && !url.password ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Returns a discounted subtotal in the same minor units as the input, rounded to the nearest unit. */
 export function getDiscountedAmount(regularAmount: number, discountPercent: number): number {
   if (!Number.isSafeInteger(regularAmount) || regularAmount < 0) {

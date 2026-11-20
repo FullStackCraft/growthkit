@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { getCouponOfferUrl } from './couponPresentation';
 import type { ICouponCodeConfig } from './types/CouponCodeConfig';
 
 export interface CouponCampaignProviderProps {
@@ -27,7 +28,8 @@ function parseCoupon(value: unknown, productName: string): ICouponCodeConfig | n
   const { id, couponName, description, couponCode, discountPercent, couponStart, couponEnd } = row;
   if (
     row.productName !== productName || !isNonemptyString(id) || !isNonemptyString(couponName) ||
-    !isNonemptyString(description) || !isNonemptyString(couponCode) || !/^[A-Za-z0-9]+$/.test(couponCode) ||
+    !isNonemptyString(description) || !isNonemptyString(couponCode) ||
+    (!/^[A-Za-z0-9]+$/.test(couponCode) && !getCouponOfferUrl(couponCode)) ||
     typeof discountPercent !== 'number' || !(discountPercent > 0 && discountPercent <= 100) ||
     typeof couponStart !== 'string' || typeof couponEnd !== 'string'
   ) return null;

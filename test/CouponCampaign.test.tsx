@@ -21,13 +21,13 @@ function renderCampaign(endpoint?: string) {
   );
 }
 
-function couponResponse(now: Date, start: Date, end: Date, couponName = 'Black Friday') {
+function couponResponse(now: Date, start: Date, end: Date, couponName = 'Black Friday', couponCode = 'FRIDAY50') {
   return {
     ok: true,
     headers: { get: () => now.toISOString() },
     json: async () => ({
       id: 'test-campaign', productName, couponName, description: 'Save at Stripe Checkout.',
-      couponCode: 'FRIDAY50', discountPercent: 50, couponStart: start.toISOString(), couponEnd: end.toISOString(),
+      couponCode, discountPercent: 50, couponStart: start.toISOString(), couponEnd: end.toISOString(),
     }),
   };
 }
@@ -59,7 +59,8 @@ test('loads asynchronously, keeps prefill after dismissal, then clears it at exp
   expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Black Friday' }));
   expect(dialog.querySelector('code')?.textContent).toBe('FRIDAY50');
   expect(dialog.querySelector('.gk-coupon-amount')?.textContent).toBe('50%');
-  expect(dialog.querySelector('.gk-coupon-rate')?.textContent).toBe('Flat 50% off');
+  expect(dialog.querySelector('.gk-coupon-rate')?.textContent).toBe('50% off');
+  expect(screen.getByText('Use code')).toBeTruthy();
   expect(screen.queryByRole('button', { name: /background animation/i })).toBeNull();
   expect(link.getAttribute('href')).toBe(
     'https://buy.stripe.com/test_link?client_reference_id=checkout&prefilled_promo_code=FRIDAY50#top',
@@ -72,6 +73,38 @@ test('loads asynchronously, keeps prefill after dismissal, then clears it at exp
   await act(async () => { await jest.advanceTimersByTimeAsync(1000); });
   expect(link.getAttribute('href')).toBe(paymentLink);
   expect(fetchMock).toHaveBeenCalledTimes(2);
+});
+
+test('uses a campaign HTTPS link as the AppSumo action instead of a promo code', async () => {
+  const now = new Date('2026-11-27T10:00:00Z');
+  const end = new Date(now.getTime() + 60_000);
+  const appSumoUrl = 'https://appsumo.com/products/example/?ref=campaign#pricing';
+  globalThis.fetch = jest.fn().mockResolvedValue(couponResponse(now, now, end, 'Black Friday', appSumoUrl));
+  render(
+    <CouponCampaignProvider productName={productName} endpoint="/coupons">
+      <Checkout />
+      <CouponBanner productName={productName} plansHref="/pricing" />
+    </CouponCampaignProvider>,
+  );
+  await act(async () => {});
+
+  const action = screen.getByRole('link', { name: 'Visit AppSumo' });
+  expect(action.getAttribute('href')).toBe(appSumoUrl);
+  expect(action.getAttribute('target')).toBe('_blank');
+  expect(screen.queryByText('Use code')).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Copy coupon code' })).toBeNull();
+  expect(screen.queryByRole('link', { name: 'See discounted plans' })).toBeNull();
+  expect(screen.getByRole('link', { name: 'Buy now' }).getAttribute('href')).toBe(paymentLink);
+});
+
+test.each(['http://appsumo.com', 'https:///appsumo.com'])('rejects unusable coupon link %s', async (couponCode) => {
+  const now = new Date('2026-11-27T10:00:00Z');
+  const end = new Date(now.getTime() + 60_000);
+  globalThis.fetch = jest.fn().mockResolvedValue(couponResponse(now, now, end, 'Black Friday', couponCode));
+  renderCampaign('/coupons');
+  await act(async () => {});
+
+  expect(screen.queryByRole('dialog')).toBeNull();
 });
 
 test('ignores a future campaign even when the visitor clock is ahead', async () => {
@@ -102,7 +135,7 @@ test('shows a server-time countdown and compact offer with the supplied plan sco
   const dialog = screen.getByRole('dialog', { name: 'Flash Sale' });
   expect(dialog.getAttribute('data-layout')).toBe('compact');
   expect(dialog.querySelector('.gk-coupon-art')).toBeNull();
-  expect(dialog.querySelector('.gk-coupon-rate')?.textContent).toBe('Flat 50% off');
+  expect(dialog.querySelector('.gk-coupon-rate')?.textContent).toBe('50% off');
   expect(screen.getByText('lifetime plans')).toBeTruthy();
   const plansLink = screen.getByRole('link', { name: 'See discounted plans' });
   expect(plansLink.getAttribute('href')).toBe('/pricing');

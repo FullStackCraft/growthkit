@@ -4,7 +4,7 @@ import { CouponBannerArtwork } from './CouponBannerArtwork';
 import { couponBannerStyles } from './couponBannerStyles';
 import { useCouponCampaign } from './CouponCampaignProvider';
 import { CouponCountdown } from './CouponCountdown';
-import { getCouponArtwork } from './couponPresentation';
+import { getCouponArtwork, getCouponOfferUrl } from './couponPresentation';
 import type { ICouponCodeConfig } from './types/CouponCodeConfig';
 
 export interface CouponBannerOffer {
@@ -67,8 +67,14 @@ function CouponDialog({
 
   const artwork = getCouponArtwork(coupon.couponName);
   const hasArt = artwork !== 'default' || Boolean(image);
-  const checkoutHref = offer?.checkoutHref ?? plansHref;
+  const externalOfferUrl = getCouponOfferUrl(coupon.couponCode);
+  const checkoutOffer = externalOfferUrl ? undefined : offer;
+  const actionHref = externalOfferUrl ?? checkoutOffer?.checkoutHref ?? plansHref;
+  const opensNewTab = Boolean(externalOfferUrl ?? checkoutOffer);
   const discountLabel = `${coupon.discountPercent}% off`;
+  const actionLabel = externalOfferUrl
+    ? 'Visit AppSumo'
+    : checkoutOffer?.actionLabel ?? (checkoutOffer ? `Get ${discountLabel}` : 'See discounted plans');
   const scope = discountScope?.trim();
   const basicDescription = `Use ${coupon.couponCode} for ${discountLabel} at Stripe Checkout.`;
   const hasExtraDescription = coupon.description.trim().toLowerCase() !== basicDescription.toLowerCase();
@@ -122,40 +128,46 @@ function CouponDialog({
           <div className="gk-coupon-deal">
             <p className="gk-coupon-number" id={discountId}>
               <strong className="gk-coupon-rate">
-                <span>Flat</span>{' '}
                 <span className="gk-coupon-amount">{coupon.discountPercent}%</span>{' '}
                 <span>off</span>
               </strong>
               {scope && <> <span className="gk-coupon-scope">{scope}</span></>}
             </p>
-            {offer && (
+            {checkoutOffer && (
               <div className="gk-coupon-purchase">
                 <div className="gk-coupon-purchase-details">
-                  <span className="gk-coupon-purchase-title">{offer.title}</span>
-                  {offer.terms && <span className="gk-coupon-purchase-terms">{offer.terms}</span>}
+                  <span className="gk-coupon-purchase-title">{checkoutOffer.title}</span>
+                  {checkoutOffer.terms && <span className="gk-coupon-purchase-terms">{checkoutOffer.terms}</span>}
                 </div>
                 <div className="gk-coupon-price">
-                  <span className="gk-coupon-sr">Regular price </span><s>{offer.regularPrice}</s>
-                  <span className="gk-coupon-sr">Sale price </span><strong>{offer.salePrice}</strong>
+                  <span className="gk-coupon-sr">Regular price </span><s>{checkoutOffer.regularPrice}</s>
+                  <span className="gk-coupon-sr">Sale price </span><strong>{checkoutOffer.salePrice}</strong>
                 </div>
               </div>
             )}
           </div>
           <CouponCountdown expiresAt={expiresAt} endsOn={coupon.couponEnd} />
-          <div className="gk-coupon-code-row">
-            <span className="gk-coupon-code"><span>Use code</span><code>{coupon.couponCode}</code></span>
-            <button type="button" className="gk-coupon-copy" aria-label="Copy coupon code" onClick={copyCode}>
-              <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4">
-                <rect x="7" y="7" width="9" height="9" rx="1.5" /><path d="M5 13H4.5A1.5 1.5 0 0 1 3 11.5v-7A1.5 1.5 0 0 1 4.5 3h7A1.5 1.5 0 0 1 13 4.5V5" />
-              </svg>
-              Copy
-            </button>
-          </div>
-          {checkoutHref && (
-            <a className="gk-coupon-action" href={checkoutHref} onClick={dismiss}
-              target={offer ? '_blank' : undefined} rel={offer ? 'noopener noreferrer' : undefined}>
-              {offer?.actionLabel ?? (offer ? `Get ${discountLabel}` : 'See discounted plans')}
-              <span aria-hidden="true">{offer ? '↗' : '→'}</span>
+          {!externalOfferUrl && (
+            <div className="gk-coupon-code-row">
+              <span className="gk-coupon-code"><span>Use code</span><code>{coupon.couponCode}</code></span>
+              <button type="button" className="gk-coupon-copy" aria-label="Copy coupon code" onClick={copyCode}>
+                <svg viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <rect x="7" y="7" width="9" height="9" rx="1.5" /><path d="M5 13H4.5A1.5 1.5 0 0 1 3 11.5v-7A1.5 1.5 0 0 1 4.5 3h7A1.5 1.5 0 0 1 13 4.5V5" />
+                </svg>
+                Copy
+              </button>
+            </div>
+          )}
+          {actionHref && (
+            <a className="gk-coupon-action" href={actionHref} onClick={dismiss}
+              target={opensNewTab ? '_blank' : undefined} rel={opensNewTab ? 'noopener noreferrer' : undefined}>
+              {actionLabel}
+              {opensNewTab ? (
+                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 12l8-8M5 4h7v7" />
+                </svg>
+              ) : <span aria-hidden="true">→</span>}
             </a>
           )}
           <div className="gk-coupon-status" role="status">{copyStatus}</div>
